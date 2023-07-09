@@ -36,7 +36,7 @@ Looking through their html I saw that they used a lot the tag `data-testid` whic
 ## :hamster: Go libraries
 As I'm not a go developer per se, I needed to familiarize myself with a few libraries and topics.
 
-## time
+### time
 A built-in library to better handle time and timestamps. 
 
 Mainly used [this article](https://blog.boot.dev/golang/golang-date-time/) to learn how to use it.
@@ -52,6 +52,13 @@ The main examples that I look were:
 - [Screenshot](https://github.com/chromedp/examples/blob/master/screenshot/main.go): So I can screenshot the QR code and more.
 - [Text](https://github.com/chromedp/examples/blob/master/text/main.go): Learning how to extract text from elements.
 
+## Go Language
 
+### Enums
+Go don't have enums natively, so we have to implement it ourselves.
+- https://www.sohamkamani.com/golang/enums/
+
+## Facebook Whatsapp API
+- [Reference Docs](https://developers.facebook.com/docs/whatsapp/on-premises/reference/messages/)
 
 

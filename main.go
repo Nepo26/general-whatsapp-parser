@@ -72,15 +72,18 @@ func main() {
 	// Chat Titles
 	// //div[@data-testid='chat-list']//div[@data-testid='cell-frame-title']//span[starts-with(text(),"Os ex-gordinhos")]
 	if err := goToChat(ctx, "Os ex-gordinhos"); err != nil {
+		//if err := goToChat(ctx, "Despertar"); err != nil {
 		log.Fatal(err)
 	}
 	if err := clickChatInfo(ctx); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := getGroupMembers(ctx); err != nil {
+	if _, err := getGroupMembers(ctx); err != nil {
 		log.Fatal(err)
 	}
+	message := Message{Type: text}
+	log.Printf("Message %v", message)
 }
 
 func checkIfIsLoggedIn(ctx context.Context) bool {
@@ -125,7 +128,7 @@ func clickChatInfo(ctx context.Context) error {
 	return nil
 }
 
-func getGroupMembers(ctx context.Context) error {
+func getGroupMembers(ctx context.Context) ([]Person, error) {
 	filterMoreMembersButton := "//div[@data-testid='group-info-participants-section']//div[@role='button' and @data-ignore-capture='any']"
 
 	// Get Profile Name of every member
@@ -141,12 +144,14 @@ func getGroupMembers(ctx context.Context) error {
 	if err := chromedp.Run(ctx,
 		chromedp.WaitVisible(filterMoreMembersButton),
 		chromedp.Click(filterMoreMembersButton),
+
 		chromedp.WaitVisible(filterMemberBox),
 		chromedp.Nodes(filterMemberBox, &memberNodes, chromedp.BySearch),
 	); err != nil {
-		return fmt.Errorf("couldn't get to member profiles: %v", err)
+		return nil, fmt.Errorf("couldn't get to member profiles: %v", err)
 	}
 
+	var personSlice []Person
 	log.Printf("All nodes: %v", memberNodes)
 	for i := range memberNodes {
 		filterUniqueMemberBox := fmt.Sprintf("(//div[@data-testid='group-info-participants-section']//div[@role='list']//div[@data-testid='cell-frame-container'])[%d]", i+1)
@@ -154,19 +159,20 @@ func getGroupMembers(ctx context.Context) error {
 		profile, err := getMemberInfo(ctx, filterUniqueMemberBox)
 		if err != nil {
 			log.Fatalf("Couldn't get unique member: %v", err)
-			return err
+			return nil, err
 		}
 
-		log.Print(profile)
+		personSlice = append(personSlice, profile)
 	}
 
-	return nil
+	return personSlice, nil
 }
 
 func getMemberInfo(ctx context.Context, filter string) (Person, error) {
 	filterCloseButton := "//div[@data-testid='btn-closer-drawer']"
 	filterProfileName := "//span[@data-testid='contact-info-subtitle']"
-	//filterProfilePhoneNumber := "//span[@data-testid='contact-info-subtitle']/../following-sibling::div/span/span"
+
+	// We are using multiple XPaths because Whatsapp Business Profile is different than the normal one
 	filterProfilePhoneNumber := "//span[@data-testid='contact-info-subtitle']/../following-sibling::div/span/span | //div[@data-testid='section-about-and-phone-number']/following-sibling::div//span/span"
 	filterProfilePicture := "//span[@data-testid='contact-info-subtitle']/../../preceding-sibling::div//img | //span[@data-testid='contact-info-subtitle']/../../../..//img"
 	filterMoreMembersButton := "//div[@data-testid='group-info-participants-section']//div[@role='button' and @data-ignore-capture='any']"
@@ -220,15 +226,50 @@ type Person struct {
 	PhoneNumber     string
 }
 
-type Category struct {
-	Name        string
-	Description string
-	Identifiers []string
+// MessageType Enum regarding message types
+type MessageType int64
+
+const (
+	undefined MessageType = iota
+	audio
+	contacts
+	document
+	image
+	interactive
+	location
+	sticker
+	template
+	text
+)
+
+func (messageType MessageType) String() string {
+	switch messageType {
+	case document:
+		return "Document"
+	case audio:
+		return "Audio"
+	case text:
+		return "Text"
+	case contacts:
+		return "Contacts"
+	case image:
+		return "Image"
+	case interactive:
+		return "Interactive"
+	case location:
+		return "Location"
+	case sticker:
+		return "Sticker"
+	case template:
+		return "Template"
+	}
+
+	return "Unknown"
 }
-type Entry struct {
-	Person   Person
-	Category Category
-	Time     time.Time
+
+type Message struct {
+	Text string      `validate:"enum('text',invalid)"`
+	Type MessageType `validate:"enum(MessageType,invalid)"`
 }
 
 func listEveryPersonOnGroup(ctx context.Context, sect string) ([]Person, error) {
