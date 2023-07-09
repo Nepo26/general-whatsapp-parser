@@ -2,16 +2,20 @@
 This project started from the need to scrape whatsapp web for a family competition and my need to create Go code.
 
 ## Todo List
+### Necessary
 - [x] Open Whatsapp
 - [x] Wait QR Code
 - [x] Wait Login
-- [ ] List Profiles
-- [ ] Go to Specific Group
-- [ ] List every Group Member and its info
+- [x] List Profiles
+- [x] Go to Specific Group
+- [x] List every Group Member and its info
 - [ ] Gatter text messages from all members from the screen
 - [ ] Scroll to get messages from all time
 - [ ] Insert every message to a database
-- [ ] Send every image and audio to an S3 API 
+- [ ] Send every image and audio to an S3 API
+
+### Not necessary but nice to have
+- [ ] Beautiful and real time Front-end 
 
 ---
 #  :book: Learnings
