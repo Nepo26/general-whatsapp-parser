@@ -79,9 +79,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if _, err := getGroupMembers(ctx); err != nil {
+	_, err := getGroupMembers(ctx)
+	if err != nil {
 		log.Fatal(err)
 	}
+
 	message := Message{Type: text}
 	log.Printf("Message %v", message)
 }
@@ -162,6 +164,7 @@ func getGroupMembers(ctx context.Context) ([]Person, error) {
 			return nil, err
 		}
 
+		log.Printf("Profile %v\n", profile)
 		personSlice = append(personSlice, profile)
 	}
 
